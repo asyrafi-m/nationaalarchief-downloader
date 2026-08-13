@@ -162,7 +162,7 @@ code {
   margin: 0 auto;
   text-align: center;
   border-inline: 1px solid var(--border);
-  min-height: 100svh;
+  min-height: calc(100svh - 70px);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -295,22 +295,22 @@ code {
   }
 }
 
-
 #footer {
-  background: #fff;
   width: 100%;
-  min-height: 30px;
-  text-align: center;
   box-sizing: border-box;
-  padding: 8px 20px;
+  margin-top: auto;
+  padding: 12px 20px;
+  text-align: center;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
 }
 
 #footer .footer-content {
-  color: #213547;
-  font-size: 12px;
-  line-height: 145%;
   max-width: 900px;
   margin: 0 auto;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 145%;
 }
 
 #footer .footer-content p {
@@ -318,6 +318,7 @@ code {
 }
 
 #footer .footer-content #bold {
-  font-weight: bold;
+  color: var(--text-h);
+  font-weight: 600;
   font-size: 13px;
 }
