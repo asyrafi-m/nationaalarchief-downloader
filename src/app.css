@@ -162,7 +162,7 @@ code {
   margin: 0 auto;
   text-align: center;
   border-inline: 1px solid var(--border);
-  height: 90svh;
+  min-height: calc(100svh - 70px);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -302,8 +302,7 @@ code {
   padding: 12px 20px;
   text-align: center;
   background: var(--bg);
-  /* border-top: 1px solid var(--border); */
-  height: 10svh;
+  border-top: 1px solid var(--border);
 }
 
 #footer .footer-content {
