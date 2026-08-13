@@ -36,6 +36,16 @@ class handler(BaseHTTPRequestHandler):
 
             files = request_data.get("files", [])
 
+            archive = request_data.get(
+                "archive",
+                "nationaalarchief"
+            )
+
+            inventory = request_data.get(
+                "inventory",
+                "bundle"
+            )
+
             if not files:
                 self.send_json(
                     400,
@@ -43,17 +53,10 @@ class handler(BaseHTTPRequestHandler):
                 )
                 return
 
-            # ---------------------------------------------
-            # TEST MODE
-            # Only download first 2 images
-            # ---------------------------------------------
-
-            files = files[:2]
-
             print(
                 "Downloading",
                 len(files),
-                "test images..."
+                "images..."
             )
 
             # ---------------------------------------------
@@ -73,11 +76,24 @@ class handler(BaseHTTPRequestHandler):
                     image_url = file.get("image")
 
                     if not image_url:
+                        print(
+                            "Skipping file",
+                            index + 1,
+                            "- no image URL"
+                        )
                         continue
 
+                    page = file.get(
+                        "page",
+                        index + 1
+                    )
+
+                    filename = (
+                        f"page_{int(page):04d}.jpg"
+                    )
+
                     print(
-                        "Downloading image",
-                        index + 1,
+                        f"Downloading page {page}:",
                         image_url
                     )
 
@@ -89,40 +105,63 @@ class handler(BaseHTTPRequestHandler):
                         }
                     )
 
-                    with urllib.request.urlopen(
-                        request,
-                        timeout=60
-                    ) as response:
+                    try:
 
-                        image_data = response.read()
+                        with urllib.request.urlopen(
+                            request,
+                            timeout=60
+                        ) as response:
 
-                    filename = (
-                        f"page_{index + 1:04d}.jpg"
-                    )
+                            image_data = response.read()
 
-                    zip_file.writestr(
-                        filename,
-                        image_data
-                    )
+                        zip_file.writestr(
+                            filename,
+                            image_data
+                        )
 
-                    print(
-                        "Added",
-                        filename,
-                        len(image_data),
-                        "bytes"
-                    )
+                        print(
+                            "Added",
+                            filename,
+                            len(image_data),
+                            "bytes"
+                        )
+
+                    except Exception as image_error:
+
+                        print(
+                            f"ERROR downloading page {page}:",
+                            repr(image_error)
+                        )
+
+                        raise Exception(
+                            f"Failed to download page "
+                            f"{page}: {image_error}"
+                        )
 
             # ---------------------------------------------
-            # 3. Return ZIP
+            # 3. Prepare ZIP
             # ---------------------------------------------
 
             zip_data = zip_buffer.getvalue()
+
+            filename = (
+                f"{archive}_{inventory}.zip"
+            )
+
+            print(
+                "Finished ZIP:",
+                filename
+            )
 
             print(
                 "ZIP size:",
                 len(zip_data),
                 "bytes"
             )
+
+            # ---------------------------------------------
+            # 4. Return ZIP
+            # ---------------------------------------------
 
             self.send_response(200)
 
@@ -133,7 +172,7 @@ class handler(BaseHTTPRequestHandler):
 
             self.send_header(
                 "Content-Disposition",
-                'attachment; filename="nationaalarchief-test.zip"'
+                f'attachment; filename="{filename}"'
             )
 
             self.send_header(

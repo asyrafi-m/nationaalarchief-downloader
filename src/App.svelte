@@ -35,7 +35,9 @@ const response = await fetch('/api/analyze', {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          url: archiveUrl.trim()
+          archive: result.archive,
+          inventory: result.inventory,
+          files: result.files
         })
       })
 
@@ -96,7 +98,7 @@ const response = await fetch('/api/analyze', {
 
     const link = document.createElement('a')
     link.href = url
-    link.download = 'nationaalarchief-test.zip'
+    link.download = `${result.archive}_${result.inventory}.zip`
 
     document.body.appendChild(link)
     link.click()
