@@ -3,9 +3,10 @@
   let loading = false
   let error = ''
   let result = null
+  let downloadStatus = ''
 
   let currentPage = 1
-  const itemsPerPage = 20
+  const itemsPerPage = 10
 
   $: totalPages = result
     ? Math.ceil(result.files.length / itemsPerPage)
@@ -59,58 +60,64 @@
   }
 
   async function downloadBundle() {
-    if (!result || !result.files || result.files.length === 0) {
-      error = 'No images available to download.'
-      return
-    }
+  if (!result || !result.files || result.files.length === 0) {
+    error = 'No images available to download.'
+    return
+  }
 
-    error = ''
-    loading = true
+  error = ''
+  downloadStatus = 'Preparing download...'
+  loading = true
 
-    try {
-      const response = await fetch('/api/download', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          files: result.files
-        })
+  try {
+    const response = await fetch('/api/download', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        files: result.files
       })
+    })
 
-      if (!response.ok) {
-        let message = 'Download failed.'
+    if (!response.ok) {
+      let message = 'Download failed.'
 
-        try {
-          const data = await response.json()
-          message = data.error || message
-        } catch {
-          // Response wasn't JSON
-        }
-
-        throw new Error(message)
+      try {
+        const data = await response.json()
+        message = data.error || message
+      } catch {
+        // Response wasn't JSON
       }
 
-      const blob = await response.blob()
-
-      const url = URL.createObjectURL(blob)
-
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `NA_${result.archive}_${result.inventory}.zip`
-
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
-
-      URL.revokeObjectURL(url)
-
-    } catch (err) {
-      error = err.message
-    } finally {
-      loading = false
+      throw new Error(message)
     }
+
+    downloadStatus = 'Downloading images and creating ZIP...'
+
+    const blob = await response.blob()
+
+    downloadStatus = 'Download complete!'
+
+    const url = URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `NationaalArchief_${result.archive}_${result.inventory}.zip`
+
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+
+    URL.revokeObjectURL(url)
+
+  } catch (err) {
+    error = err.message
+    downloadStatus = ''
+  } finally {
+    loading = false
   }
+}
 </script>
 
 <main>
@@ -170,6 +177,17 @@
     >
       {loading ? 'Preparing download...' : 'Download entire bundle as ZIP'}
     </button>
+    {#if downloadStatus}
+      <div class:complete={downloadStatus === 'Download complete!'} class="download-status">
+        {#if downloadStatus === 'Download complete!'}
+          <span class="status-check">✓</span>
+        {:else}
+          <span class="status-spinner"></span>
+        {/if}
+
+        {downloadStatus}
+      </div>
+    {/if}
 
     <div class="gallery">
       {#each visibleFiles as file}
@@ -400,5 +418,45 @@
   color: #666;
   font-size: 13px;
   margin-top: 12px;
+}
+
+.download-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+  padding: 12px 15px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  color: #555;
+  font-size: 14px;
+}
+
+.status-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ccc;
+  border-top-color: #333;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.download-status.complete {
+  background: #f0f8f0;
+  border-color: #b8d8b8;
+  color: #286328;
+}
+
+.status-check {
+  font-size: 18px;
+  font-weight: bold;
 }
 </style>
