@@ -264,9 +264,17 @@ class handler(BaseHTTPRequestHandler):
                 if not file_url:
                     continue
 
+                image_id = file_url.rstrip("/").split("/")[-1]
+                
+                thumbnail_url = (
+                     "https://service.archief.nl/gaf/api/file/v1/thumb/"
+                     + image_id
+                )
+
                 files.append({
-                    "url": file_url,
-                    "mime": "image/jpeg"
+                    "page": len(files) + 1,
+                    "thumbnail": thumbnail_url,
+                    "image": file_url
                 })
 
             print(
