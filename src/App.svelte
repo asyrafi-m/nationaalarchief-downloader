@@ -98,7 +98,7 @@ const response = await fetch('/api/analyze', {
 
     const link = document.createElement('a')
     link.href = url
-    link.download = `${result.archive}_${result.inventory}.zip`
+    link.download = 'nationaalarchief-bundle.zip'
 
     document.body.appendChild(link)
     link.click()
