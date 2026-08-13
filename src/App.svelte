@@ -5,7 +5,7 @@
   let result = null
 
   let currentPage = 1
-const itemsPerPage = 20
+  const itemsPerPage = 20
 
 $: totalPages = result
   ? Math.ceil(result.files.length / itemsPerPage)
@@ -57,6 +57,59 @@ const response = await fetch('/api/analyze', {
       loading = false
     }
   }
+  async function downloadBundle() {
+  if (!result || !result.files || result.files.length === 0) {
+    error = 'No images available to download.'
+    return
+  }
+
+  error = ''
+  loading = true
+
+  try {
+    const response = await fetch('/api/download', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        files: result.files
+      })
+    })
+
+    if (!response.ok) {
+      let message = 'Download failed.'
+
+      try {
+        const data = await response.json()
+        message = data.error || message
+      } catch {
+        // Response wasn't JSON
+      }
+
+      throw new Error(message)
+    }
+
+    const blob = await response.blob()
+
+    const url = URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'nationaalarchief-test.zip'
+
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+
+    URL.revokeObjectURL(url)
+
+  } catch (err) {
+    error = err.message
+  } finally {
+    loading = false
+  }
+}
 </script>
 
 <main>
@@ -110,6 +163,12 @@ const response = await fetch('/api/analyze', {
       <strong>Images:</strong>
       {result.count}
     </p>
+    <button
+      onclick={downloadBundle}
+      disabled={loading}
+    >
+      {loading ? 'Preparing test download...' : 'Download test bundle (2 pages)'}
+    </button>
 
     <div class="gallery">
       {#each visibleFiles as file}
