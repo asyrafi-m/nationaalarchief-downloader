@@ -258,10 +258,14 @@ class handler(BaseHTTPRequestHandler):
                     continue
 
                 file_url = flocat.get(
-                    "{http://www.w3.org/1999/xlink}href"
+                     "{http://www.w3.org/1999/xlink}href"
                 )
 
                 if not file_url:
+                    continue
+                # Exclude thumbnail files from the downloadable image list.
+                # Thumbnails are still generated separately for the UI.
+                if "/thumb/" in file_url:
                     continue
 
                 image_id = file_url.rstrip("/").split("/")[-1]
