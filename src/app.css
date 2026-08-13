@@ -169,6 +169,10 @@ code {
   box-sizing: border-box;
 }
 
+#app main {
+  height: 100%;
+}
+
 #center {
   display: flex;
   flex-direction: column;
