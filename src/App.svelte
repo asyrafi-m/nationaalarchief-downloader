@@ -169,7 +169,7 @@ const response = await fetch('/api/analyze', {
       onclick={downloadBundle}
       disabled={loading}
     >
-      {loading ? 'Preparing test download...' : 'Download test bundle (2 pages)'}
+      {loading ? 'Preparing download...' : 'Download entire bundle as ZIP'}
     </button>
 
     <div class="gallery">
