@@ -38,6 +38,7 @@ If you have state that's important to retain within a component, consider creati
 // link to test:
 // https://www.nationaalarchief.nl/onderzoeken/archief/2.10.39/invnr/@1240/file/NL-HaNA_2.10.39_1240_0128
 // https://www.nationaalarchief.nl/onderzoeken/archief/2.10.39/invnr/@1/file/NL-HaNA_2.10.39_1_0001
+// https://www.nationaalarchief.nl/onderzoeken/archief/2.10.39/invnr/@52/file/NL-HaNA_2.10.39_52_0001 (28 pages only!)
 
 // Important!
 // Run svelte server
