@@ -7,15 +7,15 @@
   let currentPage = 1
   const itemsPerPage = 20
 
-$: totalPages = result
-  ? Math.ceil(result.files.length / itemsPerPage)
-  : 0
+  $: totalPages = result
+    ? Math.ceil(result.files.length / itemsPerPage)
+    : 0
 
-$: startIndex = (currentPage - 1) * itemsPerPage
+  $: startIndex = (currentPage - 1) * itemsPerPage
 
-$: visibleFiles = result
-  ? result.files.slice(startIndex, startIndex + itemsPerPage)
-  : []
+  $: visibleFiles = result
+    ? result.files.slice(startIndex, startIndex + itemsPerPage)
+    : []
 
   async function analyzeBundle() {
     error = ''
@@ -29,15 +29,13 @@ $: visibleFiles = result
     loading = true
 
     try {
-const response = await fetch('/api/analyze', {
+      const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          archive: result.archive,
-          inventory: result.inventory,
-          files: result.files
+          url: archiveUrl.trim()
         })
       })
 
@@ -59,59 +57,60 @@ const response = await fetch('/api/analyze', {
       loading = false
     }
   }
+
   async function downloadBundle() {
-  if (!result || !result.files || result.files.length === 0) {
-    error = 'No images available to download.'
-    return
-  }
-
-  error = ''
-  loading = true
-
-  try {
-    const response = await fetch('/api/download', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        files: result.files
-      })
-    })
-
-    if (!response.ok) {
-      let message = 'Download failed.'
-
-      try {
-        const data = await response.json()
-        message = data.error || message
-      } catch {
-        // Response wasn't JSON
-      }
-
-      throw new Error(message)
+    if (!result || !result.files || result.files.length === 0) {
+      error = 'No images available to download.'
+      return
     }
 
-    const blob = await response.blob()
+    error = ''
+    loading = true
 
-    const url = URL.createObjectURL(blob)
+    try {
+      const response = await fetch('/api/download', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          files: result.files
+        })
+      })
 
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'nationaalarchief-bundle.zip'
+      if (!response.ok) {
+        let message = 'Download failed.'
 
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
+        try {
+          const data = await response.json()
+          message = data.error || message
+        } catch {
+          // Response wasn't JSON
+        }
 
-    URL.revokeObjectURL(url)
+        throw new Error(message)
+      }
 
-  } catch (err) {
-    error = err.message
-  } finally {
-    loading = false
+      const blob = await response.blob()
+
+      const url = URL.createObjectURL(blob)
+
+      const link = document.createElement('a')
+      link.href = url
+      link.download = 'nationaalarchief-bundle.zip'
+
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+
+      URL.revokeObjectURL(url)
+
+    } catch (err) {
+      error = err.message
+    } finally {
+      loading = false
+    }
   }
-}
 </script>
 
 <main>
