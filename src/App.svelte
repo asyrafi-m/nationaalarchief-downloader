@@ -97,7 +97,7 @@
 
       const link = document.createElement('a')
       link.href = url
-      link.download = 'nationaalarchief-bundle.zip'
+      link.download = `NA_${result.archive}_${result.inventory}.zip`
 
       document.body.appendChild(link)
       link.click()
