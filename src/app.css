@@ -163,6 +163,7 @@ code {
   text-align: center;
   border-inline: 1px solid var(--border);
   min-height: calc(100svh - 70px);
+  height: 90svh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
