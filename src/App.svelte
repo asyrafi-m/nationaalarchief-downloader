@@ -284,6 +284,8 @@
     margin: 0 0 10px;
     font-size: 2rem;
     color: #333;
+    line-height: normal;
+    letter-spacing: normal;
   }
 
   .intro {
