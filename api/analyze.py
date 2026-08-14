@@ -77,7 +77,7 @@ class handler(BaseHTTPRequestHandler):
             # -------------------------------------------------
 
             match = re.search(
-                r"/archief/([^/]+)/invnr/@(\d+)",
+                r"/archief/([^/]+)/invnr/(?:@)?([^/]+)",
                 archive_url
             )
 
