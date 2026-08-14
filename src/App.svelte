@@ -286,6 +286,7 @@
     color: #333;
     line-height: normal;
     letter-spacing: normal;
+    font-weight: lighter;
   }
 
   .intro {
