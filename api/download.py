@@ -57,7 +57,7 @@ class handler(BaseHTTPRequestHandler):
 
     def download_image(self, image_url, page_number):
 
-        max_attempts = 3
+        max_attempts = 6
 
         for attempt in range(1, max_attempts + 1):
 
@@ -79,8 +79,14 @@ class handler(BaseHTTPRequestHandler):
                             "(KHTML, like Gecko) "
                             "Chrome/138.0 Safari/537.36"
                         ),
-                        "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
-                        "Referer": "https://www.nationaalarchief.nl/"
+                        "Accept": (
+                            "image/avif,image/webp,"
+                            "image/apng,image/svg+xml,"
+                            "image/*,*/*;q=0.8"
+                        ),
+                        "Referer": (
+                            "https://www.nationaalarchief.nl/"
+                        )
                     }
                 )
 
@@ -118,12 +124,12 @@ class handler(BaseHTTPRequestHandler):
 
                 else:
 
-                    raise Exception(
-                        f"Failed to download page "
-                        f"{page_number}: "
-                        f"HTTP {e.code} after "
-                        f"{max_attempts} attempts"
+                    print(
+                        f"Page {page_number} failed after "
+                        f"{max_attempts} attempts."
                     )
+
+                    return None
 
             except Exception as e:
 
@@ -145,10 +151,14 @@ class handler(BaseHTTPRequestHandler):
 
                 else:
 
-                    raise Exception(
-                        f"Failed to download page "
-                        f"{page_number}: {e}"
+                    print(
+                        f"Page {page_number} failed after "
+                        f"{max_attempts} attempts."
                     )
+
+                    return None
+
+        return None
 
     def do_POST(self):
 
@@ -195,6 +205,8 @@ class handler(BaseHTTPRequestHandler):
 
             zip_buffer = io.BytesIO()
 
+            failed_pages = []
+
             with zipfile.ZipFile(
                 zip_buffer,
                 "w",
@@ -207,9 +219,15 @@ class handler(BaseHTTPRequestHandler):
 
                     if not image_url:
 
+                        page_number = index + 1
+
                         print(
                             f"Skipping page "
-                            f"{index + 1}: no image URL"
+                            f"{page_number}: no image URL"
+                        )
+
+                        failed_pages.append(
+                            page_number
                         )
 
                         continue
@@ -220,6 +238,24 @@ class handler(BaseHTTPRequestHandler):
                         image_url,
                         page_number
                     )
+
+                    # -------------------------------------
+                    # If download ultimately fails,
+                    # continue with the next page.
+                    # -------------------------------------
+
+                    if image_data is None:
+
+                        failed_pages.append(
+                            page_number
+                        )
+
+                        print(
+                            f"Continuing without "
+                            f"page {page_number}..."
+                        )
+
+                        continue
 
                     filename = (
                         f"page_{page_number:04d}.jpg"
@@ -235,8 +271,35 @@ class handler(BaseHTTPRequestHandler):
                         f"{len(image_data)} bytes"
                     )
 
+                # -----------------------------------------
+                # 3. Add error report if necessary
+                # -----------------------------------------
+
+                if failed_pages:
+
+                    error_text = (
+                        "The following pages could not be "
+                        "downloaded after multiple attempts:\n\n"
+                    )
+
+                    error_text += "\n".join(
+                        f"Page {page}"
+                        for page in failed_pages
+                    )
+
+                    error_text += (
+                        "\n\nThese failures may be temporary. "
+                        "You can try downloading the bundle "
+                        "again later."
+                    )
+
+                    zip_file.writestr(
+                        "DOWNLOAD_ERRORS.txt",
+                        error_text
+                    )
+
             # ---------------------------------------------
-            # 3. Return ZIP
+            # 4. Return ZIP
             # ---------------------------------------------
 
             zip_data = zip_buffer.getvalue()
@@ -245,6 +308,11 @@ class handler(BaseHTTPRequestHandler):
                 "ZIP size:",
                 len(zip_data),
                 "bytes"
+            )
+
+            print(
+                "Failed pages:",
+                failed_pages
             )
 
             self.send_response(200)
