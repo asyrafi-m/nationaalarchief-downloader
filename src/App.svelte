@@ -149,10 +149,7 @@
     <h1>Nationaal Archief Bulk Downloader</h1>
 
     <p class="intro">
-      Download digitised scans from the Dutch National Archives.
-    </p>
-    <p>
-      Version 0.3.0
+      Download digitised scans from the Dutch National Archives.<br/>Version 0.3.0
     </p>
 
     <label for="archive-url">
