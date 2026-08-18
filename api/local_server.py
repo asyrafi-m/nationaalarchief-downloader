@@ -5,6 +5,8 @@ import urllib.parse
 import xml.etree.ElementTree as ET
 import re
 
+from download import create_zip
+
 
 class handler(BaseHTTPRequestHandler):
 
@@ -51,12 +53,113 @@ class handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
 
+        print("===================================")
+        print("POST request received")
+        print("Path:", self.path)
+        print("===================================")
+
+        # =====================================================
+        # DOWNLOAD
+        # =====================================================
+
+        if self.path.rstrip("/") == "/api/download":
+
+            print("→ Routing to DOWNLOAD handler")
+
+            try:
+
+                length = int(
+                    self.headers.get("Content-Length", 0)
+                )
+
+                body = self.rfile.read(length)
+
+                request_data = json.loads(body)
+
+                files = request_data.get(
+                    "files",
+                    []
+                )
+
+                if not files:
+
+                    self.send_json(
+                        400,
+                        {
+                            "error":
+                            "No files provided."
+                        }
+                    )
+
+                    return
+
+                # create_zip() returns ONLY zip_data
+                zip_data = create_zip(files)
+
+                print(
+                    "ZIP size:",
+                    len(zip_data),
+                    "bytes"
+                )
+
+                self.send_response(200)
+
+                self.send_header(
+                    "Content-Type",
+                    "application/zip"
+                )
+
+                self.send_header(
+                    "Content-Disposition",
+                    'attachment; filename="nationaalarchief-bundle.zip"'
+                )
+
+                self.send_header(
+                    "Access-Control-Allow-Origin",
+                    "*"
+                )
+
+                self.send_header(
+                    "Content-Length",
+                    str(len(zip_data))
+                )
+
+                self.end_headers()
+
+                self.wfile.write(zip_data)
+
+                return
+
+            except Exception as e:
+
+                print(
+                    "DOWNLOAD ERROR:",
+                    repr(e)
+                )
+
+                self.send_json(
+                    500,
+                    {
+                        "error": str(e)
+                    }
+                )
+
+                return
+
+        # =====================================================
+        # ANALYZE
+        # =====================================================
+
+        print("→ Routing to ANALYZE handler")
+
         try:
+
             length = int(
                 self.headers.get("Content-Length", 0)
             )
 
             body = self.rfile.read(length)
+
             request_data = json.loads(body)
 
             archive_url = request_data.get(
@@ -65,12 +168,21 @@ class handler(BaseHTTPRequestHandler):
             ).strip()
 
             if not archive_url:
-                self.send_json(400, {
-                    "error": "No Nationaal Archief URL provided."
-                })
+
+                self.send_json(
+                    400,
+                    {
+                        "error":
+                        "No Nationaal Archief URL provided."
+                    }
+                )
+
                 return
 
-            print("Received:", archive_url)
+            print(
+                "Received:",
+                archive_url
+            )
 
             # -------------------------------------------------
             # 1. Extract archive ID and inventory number
@@ -82,15 +194,21 @@ class handler(BaseHTTPRequestHandler):
             )
 
             if not match:
-                self.send_json(400, {
-                    "error": (
-                        "Could not identify the archive number "
-                        "and inventory number from the URL."
-                    )
-                })
+
+                self.send_json(
+                    400,
+                    {
+                        "error": (
+                            "Could not identify the archive number "
+                            "and inventory number from the URL."
+                        )
+                    }
+                )
+
                 return
 
             archive_id = match.group(1)
+
             inventory_number = match.group(2)
 
             print(
@@ -113,14 +231,19 @@ class handler(BaseHTTPRequestHandler):
                 + urllib.parse.quote(archive_id)
             )
 
-            print("Downloading EAD...")
-            print(ead_url)
+            print(
+                "Downloading EAD..."
+            )
+
+            print(
+                ead_url
+            )
 
             request = urllib.request.Request(
                 ead_url,
                 headers={
                     "User-Agent":
-                        "NationaalArchiefBulkDownloader/1.0"
+                    "NationaalArchiefBulkDownloader/1.0"
                 }
             )
 
@@ -141,7 +264,9 @@ class handler(BaseHTTPRequestHandler):
             # 3. Parse EAD and find correct METS
             # -------------------------------------------------
 
-            root = ET.fromstring(ead_data)
+            root = ET.fromstring(
+                ead_data
+            )
 
             mets_url = None
 
@@ -158,57 +283,78 @@ class handler(BaseHTTPRequestHandler):
                     parent_c = None
 
                     # Find the <did> containing this unitid
+
                     for did in root.iter("did"):
 
                         if unitid in list(did):
+
                             parent_did = did
+
                             break
 
                     if parent_did is None:
                         continue
 
                     # Find the enclosing <c>
+
                     for c in root.iter("c"):
 
                         if parent_did in list(c):
+
                             parent_c = c
+
                             break
 
                     if parent_c is None:
                         continue
 
                     # Find METS DAO
+
                     for dao in parent_c.iter("dao"):
 
                         if dao.get("role") == "METS":
-                            mets_url = dao.get("href")
+
+                            mets_url = dao.get(
+                                "href"
+                            )
+
                             break
 
                     if mets_url:
                         break
 
             if not mets_url:
-                self.send_json(404, {
-                    "error": (
-                        "Could not find a METS record for "
-                        f"inventory number {inventory_number}."
-                    )
-                })
+
+                self.send_json(
+                    404,
+                    {
+                        "error": (
+                            "Could not find a METS record for "
+                            f"inventory number {inventory_number}."
+                        )
+                    }
+                )
+
                 return
 
-            print("METS URL:", mets_url)
+            print(
+                "METS URL:",
+                mets_url
+            )
 
             # -------------------------------------------------
             # 4. Download METS
             # -------------------------------------------------
 
-            print("Downloading METS...")
+            print(
+                "Downloading METS..."
+            )
 
             request = urllib.request.Request(
                 mets_url,
                 headers={
                     "User-Agent":
-                        "NationaalArchiefBulkDownloader/1.0"
+                    "NationaalArchiefBulkDownloader/1.0"
                 }
             )
 
@@ -229,11 +375,15 @@ class handler(BaseHTTPRequestHandler):
             # 5. Parse METS
             # -------------------------------------------------
 
-            mets_root = ET.fromstring(mets_data)
+            mets_root = ET.fromstring(
+                mets_data
+            )
 
             namespaces = {
-                "mets": "http://www.loc.gov/METS/",
-                "xlink": "http://www.w3.org/1999/xlink"
+                "mets":
+                "http://www.loc.gov/METS/",
+                "xlink":
+                "http://www.w3.org/1999/xlink"
             }
 
             # -------------------------------------------------
@@ -268,19 +418,23 @@ class handler(BaseHTTPRequestHandler):
                 if not file_url:
                     continue
 
-                images.append(file_url)
+                images.append(
+                    file_url
+                )
 
             # -------------------------------------------------
             # 7. Separate full-size and thumbnail URLs
             # -------------------------------------------------
 
             full_images = [
-                url for url in images
+                url
+                for url in images
                 if "/default/" in url
             ]
 
             thumbnails = [
-                url for url in images
+                url
+                for url in images
                 if "/thumb/" in url
             ]
 
@@ -300,9 +454,15 @@ class handler(BaseHTTPRequestHandler):
 
             files = []
 
-            for index, image_url in enumerate(full_images):
+            for index, image_url in enumerate(
+                full_images
+            ):
 
-                image_id = image_url.rstrip("/").split("/")[-1]
+                image_id = (
+                    image_url
+                    .rstrip("/")
+                    .split("/")[-1]
+                )
 
                 thumbnail_url = (
                     "https://service.archief.nl/api/file/v1/thumb/"
@@ -324,22 +484,31 @@ class handler(BaseHTTPRequestHandler):
             # 9. Return result
             # -------------------------------------------------
 
-            self.send_json(200, {
-                "status": "ok",
-                "archive": archive_id,
-                "inventory": inventory_number,
-                "metsUrl": mets_url,
-                "count": len(files),
-                "files": files
-            })
+            self.send_json(
+                200,
+                {
+                    "status": "ok",
+                    "archive": archive_id,
+                    "inventory": inventory_number,
+                    "metsUrl": mets_url,
+                    "count": len(files),
+                    "files": files
+                }
+            )
 
         except Exception as e:
 
-            print("ERROR:", repr(e))
+            print(
+                "ERROR:",
+                repr(e)
+            )
 
-            self.send_json(500, {
-                "error": str(e)
-            })
+            self.send_json(
+                500,
+                {
+                    "error": str(e)
+                }
+            )
 
 
 # -------------------------------------------------------------
@@ -355,7 +524,12 @@ if __name__ == "__main__":
         handler
     )
 
-    print("Python API running at:")
-    print("http://127.0.0.1:8000")
+    print(
+        "Python API running at:"
+    )
+
+    print(
+        "http://127.0.0.1:8000"
+    )
 
     server.serve_forever()
