@@ -67,6 +67,27 @@
       return
     }
 
+    // -------------------------------------------------
+    // Large-download warning
+    // -------------------------------------------------
+
+    if (result.files.length > 100) {
+      const confirmed = window.confirm(
+        `This bundle contains ${result.files.length} pages.\n\n` +
+        `Downloading a large number of pages may take ` +
+        `considerable time and may be affected by network ` +
+        `or server limitations.\n\n` +
+        `Please allow sufficient time for the process to ` +
+        `complete and avoid closing or suspending the browser ` +
+        `during the download.\n\n` +
+        `Do you want to continue?`
+      )
+
+      if (!confirmed) {
+        return
+      }
+    }
+
     error = ''
     downloadStatus = 'Preparing download...'
     downloading = true
