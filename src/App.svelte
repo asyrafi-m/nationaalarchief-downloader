@@ -151,6 +151,9 @@
     <p class="intro">
       Download digitised scans from the Dutch National Archives.
     </p>
+    <p>
+      Version 0.3.0
+    </p>
 
     <label for="archive-url">
       Nationaal Archief URL
