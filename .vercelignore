@@ -1,0 +1,6 @@
+node_modules.backup
+.git
+.vscode
+dist
+__pycache__
+*.pyc

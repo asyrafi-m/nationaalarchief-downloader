@@ -1,56 +1,103 @@
-# Svelte + Vite
+# **Nationaal Archief Bulk Downloader**
 
-This template should help get you started developing with Svelte in Vite.
+A small web application that helps researchers download multiple digitised scans from the **Nationaal Archief (Dutch National Archives)**.
 
-## Recommended IDE Setup
+The application is designed for situations where a researcher needs to download a large number of pages from the same archival bundle and downloading each scan individually would be impractical.
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+## **Features**
 
-## Need an official Svelte framework?
+- Analyse a Nationaal Archief URL and identify the available digitised scans.
+- Download a specific page range.
+- Download an entire bundle.
+- Select individual pages for download.
+- Download selected scans as a ZIP archive.
+- Preview scans through a thumbnail gallery.
+- Open individual scans in a new browser tab.
+- Warn users before downloading a large number of pages.
+- Retry failed image requests automatically.
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+## **How it works**
 
-## Technical considerations
+The application takes a Nationaal Archief URL as input and retrieves the scan information associated with that object.
 
-**Why use this over SvelteKit?**
+The image files are then retrieved using the image URLs made available by the Nationaal Archief. The selected files are packaged into a ZIP archive for the researcher.
 
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
+The application does **not** attempt to bypass authentication, access controls, copyright restrictions, or other technical restrictions imposed by the Nationaal Archief.
 
-This template contains as little as possible to get started with Vite + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
+Downloads are performed sequentially rather than through a large number of simultaneous requests. Failed requests are retried with increasing delays.
 
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
+## **Intended use**
 
-**Why include `.vscode/extensions.json`?**
+This tool was developed primarily as a convenience for **academic and archival research**. It is particularly useful when working with large digitised archival bundles where a researcher needs to obtain many individual scans for local research, transcription, OCR/HTR, or other scholarly purposes.
 
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
+Users remain responsible for complying with the applicable terms of use, copyright conditions, and other restrictions associated with the material they download.
 
-**Why enable `checkJs` in the JS template?**
+The tool is an independent research project and is **not an official Nationaal Archief application**.
 
-It is likely that most cases of changing variable types in runtime are likely to be accidental, rather than deliberate. This provides advanced typechecking out of the box. Should you like to take advantage of the dynamically-typed nature of JavaScript, it is trivial to change the configuration.
+## **Important note**
 
-**Why is HMR not preserving my local component state?**
+The application retrieves files from infrastructure operated by or associated with the Nationaal Archief. Please use it responsibly and avoid unnecessarily large or repeated downloads.
 
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/sveltejs/svelte-hmr/tree/master/packages/svelte-hmr#preservation-of-local-state).
+The developer is currently seeking clarification from the Nationaal Archief regarding any applicable technical guidelines, rate limits, or other requirements concerning automated retrieval of publicly available scans.
 
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
+## **Acknowledgements**
 
-// link to test:
-// https://www.nationaalarchief.nl/onderzoeken/archief/2.10.39/invnr/@1240/file/NL-HaNA_2.10.39_1240_0128
-// https://www.nationaalarchief.nl/onderzoeken/archief/2.10.39/invnr/@1/file/NL-HaNA_2.10.39_1_0001
-// https://www.nationaalarchief.nl/onderzoeken/archief/2.10.39/invnr/@52/file/NL-HaNA_2.10.39_52_0001 (28 pages only!)
+Thanks to **Muhammad Masruhan** for providing valuable insights into the user experience and for testing the application.
 
-// Important!
-// Run svelte server
-// npm run dev
+## **Technology**
 
-// Run python local server to enable the python file
-// python3 api/local_server.py
+The application is built with:
 
+- [Svelte](https://svelte.dev/)
+- [Vite](https://vite.dev/)
+- Python
+- Vercel
 
-```js
-// store.js
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
+## **Development**
+
+Install the dependencies:
+
+```bash
+npm install
 ```
+
+Run the frontend development server:
+
+```bash
+npm run dev
+```
+
+The Python API can be run locally from the project directory:
+
+```bash
+python3 api/analyze.py
+```
+
+and, where applicable:
+
+```bash
+python3 api/download.py
+```
+
+The Vite development server proxies `/api` requests to the local Python API.
+
+Build the application for production:
+
+```bash
+npm run build
+```
+
+## **Project status**
+
+This is an independent research tool under active development.
+
+The application may change as technical requirements, archival interfaces, or feedback from the Nationaal Archief develop.
+
+## **Author**
+
+**Muhammad Asyrafi**
+PhD Researcher, Leiden University
+
+---
+
+_This project is not affiliated with or endorsed by the Nationaal Archief unless explicitly stated otherwise._
