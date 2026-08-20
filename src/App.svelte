@@ -447,7 +447,7 @@
         <!-- Export archive information as citation -->
         <!-- ----------------------------------------- -->
           <div class="export-citation">
-            <p class="download-instruction">Export archive information as citation (BibTeX, RIS)</p>
+            <p class="download-instruction">Export archive information as citation (BibTeX, RIS). This feature is coming soon.</p>
             <div class="citation-download">
               <button
               class="card-button"
