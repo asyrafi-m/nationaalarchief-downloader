@@ -310,7 +310,7 @@ code {
   padding: 12px 20px;
   text-align: center;
   background: var(--bg);
-  /* border-top: 1px solid var(--border); */
+  border-top: 1px solid #090404;
 }
 
 #footer .footer-content {
