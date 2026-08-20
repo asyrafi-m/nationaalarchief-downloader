@@ -425,31 +425,30 @@
         <!-- ----------------------------------------- -->
 
         <div class="bundle-info">
+          </div>
+            <h2>Bundle found</h2>
 
-          <h2>Bundle found</h2>
-
-          <p>
-            <strong>Archive:</strong>
+            <p>
+              <strong>Archive:</strong>
             {result.archive}
-          </p>
+            </p>
 
-          <p>
-            <strong>Inventory:</strong>
+            <p>
+              <strong>Inventory:</strong>
             {result.inventory}
-          </p>
+            </p>
 
-          <p>
-            <strong>Images:</strong>
-            {result.count}
-          </p>
-
-        </div>
-
+            <p>
+              <strong>Images:</strong>
+              {result.count}
+            </p>
+          </div>
         <!-- ----------------------------------------- -->
         <!-- Export archive information as citation -->
         <!-- ----------------------------------------- -->
-        <div class="export-citation">
-          <p>Export archive information as citation (BibTeX, RIS)</p>
+          <div class="export-citation">
+            <p>Export archive information as citation (BibTeX, RIS)</p>
+          </div>
         </div>
 
         <!-- ----------------------------------------- -->
