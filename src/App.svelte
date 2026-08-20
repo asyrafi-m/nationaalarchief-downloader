@@ -445,6 +445,12 @@
 
         </div>
 
+        <!-- ----------------------------------------- -->
+        <!-- Export archive information as citation -->
+        <!-- ----------------------------------------- -->
+        <div class="export-citation">
+          <p>Export archive information as citation (BibTeX, RIS)</p>
+        </div>
 
         <!-- ----------------------------------------- -->
         <!-- Download instruction -->
