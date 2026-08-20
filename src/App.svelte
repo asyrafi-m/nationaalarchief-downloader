@@ -448,7 +448,7 @@
         <!-- ----------------------------------------- -->
           <div class="export-citation">
             <p>Export archive information as citation (BibTeX, RIS)</p>
-            <div>
+            <div class="citation-download">
               <button
               class="card-button"
             > RIS
@@ -918,8 +918,16 @@
   }
 
   .bundle-info-citation {
-    display:flex;
-    justify-content: center;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 16px;
+    display: grid;
+  }
+
+  .citation-download {
+    align-items: stretch;
+    gap: 16px;
+    display: flex;
   }
 
 
