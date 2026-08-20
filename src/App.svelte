@@ -837,7 +837,7 @@
     color: #333;
     line-height: normal;
     letter-spacing: normal;
-    font-weight: lighter;
+    font-weight: bolder;
   }
 
 
@@ -849,7 +849,7 @@
 
   label {
     display: block;
-    font-weight: 600;
+    font-weight: bold;
     margin-bottom: 8px;
   }
 
@@ -1193,7 +1193,7 @@
     gap: 5px;
     margin-bottom: 5px;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: bold;
     color: #555;
     cursor: pointer;
     white-space: nowrap;
@@ -1249,7 +1249,7 @@
     margin-top: 7px;
     margin-bottom: 7px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: bold;
   }
 
 
