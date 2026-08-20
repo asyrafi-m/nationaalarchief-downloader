@@ -907,6 +907,11 @@
     border-top: 1px solid #ddd;
   }
 
+  .bundle-info {
+    padding-right: 16px;
+    border-right: solid 1px #ddd;
+  }
+
 
   .bundle-info h2 {
     margin-top: 0;
