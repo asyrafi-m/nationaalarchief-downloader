@@ -327,6 +327,6 @@ code {
 
 #footer .footer-content #bold {
   color: var(--text-h);
-  font-weight: 600;
+  font-weight: bold;
   font-size: 13px;
 }
