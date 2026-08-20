@@ -926,6 +926,8 @@
     gap: 16px;
     display: flex;
     justify-content: center;
+    padding-bottom: 25px;
+    border-bottom: solid 1px #ddd;
   }
 
   .citation-download {
