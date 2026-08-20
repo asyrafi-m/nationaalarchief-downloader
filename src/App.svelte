@@ -448,6 +448,16 @@
         <!-- ----------------------------------------- -->
           <div class="export-citation">
             <p>Export archive information as citation (BibTeX, RIS)</p>
+            <div>
+              <button
+              class="card-button"
+            > RIS
+            </button>
+            <button
+              class="card-button"
+            > BibTeX
+            </button>
+            </div>
           </div>
         </div>
 
