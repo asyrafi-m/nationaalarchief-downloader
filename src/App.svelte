@@ -917,6 +917,11 @@
     margin: 8px 0;
   }
 
+  .bundle-info-citation {
+    display:flex;
+    justify-content: center;
+  }
+
 
   /* --------------------------------------------- */
   /* Download instruction */
