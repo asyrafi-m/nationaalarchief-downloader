@@ -816,7 +816,6 @@
 
   main {
     min-height: 100vh;
-    background: #f5f5f5;
     padding: 60px 20px;
     box-sizing: border-box;
   }
