@@ -424,8 +424,8 @@
         <!-- Bundle information -->
         <!-- ----------------------------------------- -->
 
-        <div class="bundle-info">
-          </div>
+        <div class="bundle-info-citation">
+          <div class="bundle-info">
             <h2>Bundle found</h2>
 
             <p>
