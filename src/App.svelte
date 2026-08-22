@@ -872,7 +872,7 @@
     margin-top: 20px;
     padding: 12px 20px;
     border: none;
-    border-radius: 6px;
+    border-radius: 0px;
     background: #01689b;
     color: white;
     font-size: 15px;
