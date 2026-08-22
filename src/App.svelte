@@ -1285,18 +1285,18 @@
 
   .page-numbers button {
     background: white;
-    color: #333;
+    color: #efefea;
     border: 1px solid #ccc;
   }
 
 
   .page-numbers button:hover {
-    background: #eee;
+    background: #01689b;
   }
 
 
   .page-numbers button.active {
-    background: #333;
+    background: #01689b;
     color: white;
     border-color: #333;
   }
