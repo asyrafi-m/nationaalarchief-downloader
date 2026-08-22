@@ -873,7 +873,7 @@
     padding: 12px 20px;
     border: none;
     border-radius: 6px;
-    background: #333;
+    background: #01689b;
     color: white;
     font-size: 15px;
     cursor: pointer;
@@ -881,7 +881,7 @@
 
 
   button:hover {
-    background: #555;
+    background: #01496d;
   }
 
 
