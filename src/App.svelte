@@ -1284,8 +1284,8 @@
 
 
   .page-numbers button {
-    background: white;
-    color: #efefea;
+    background: #efefea;
+    color: #01689b;
     border: 1px solid #ccc;
   }
 
