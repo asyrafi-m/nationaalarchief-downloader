@@ -495,6 +495,7 @@
                 From
 
                 <input
+                  class="input"
                   type="number"
                   min="1"
                   max={result.count}
