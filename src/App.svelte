@@ -827,7 +827,7 @@
     margin: 0 auto;
     background: white;
     padding: 40px;
-    border-radius: 12px;
+    border-radius: 0px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   }
 
@@ -863,7 +863,7 @@
     font-family: monospace;
     font-size: 14px;
     border: 1px solid #ccc;
-    border-radius: 6px;
+    border-radius: 0px;
     resize: vertical;
   }
 
@@ -882,7 +882,9 @@
 
   button:hover {
     background: #01496d;
-    font-weight: bold;
+    text-shadow:
+    0.5px 0 0 currentColor,
+    -0.5px 0 0 currentColor;
   }
 
 
@@ -901,7 +903,7 @@
     padding: 15px;
     background: #fee;
     color: #900;
-    border-radius: 6px;
+    border-radius: 0px;
   }
 
 
@@ -974,7 +976,7 @@
     padding: 20px;
     background: #f8f8f8;
     border: 1px solid #ddd;
-    border-radius: 8px;
+    border-radius: 0px;
     box-sizing: border-box;
     justify-content: space-between;
   }
@@ -1021,7 +1023,7 @@
     margin-top: 5px;
     padding: 9px;
     border: 1px solid #ccc;
-    border-radius: 6px;
+    border-radius: 0px;
     font-size: 14px;
   }
 
@@ -1102,7 +1104,7 @@
     padding: 12px 15px;
     background: #f5f5f5;
     border: 1px solid #ddd;
-    border-radius: 6px;
+    border-radius: 0px;
     color: #555;
     font-size: 14px;
   }
@@ -1173,7 +1175,7 @@
     min-width: 0;
     background: #f5f5f5;
     border: 2px solid transparent;
-    border-radius: 8px;
+    border-radius: 0px;
     padding: 6px;
     box-sizing: border-box;
     transition:
@@ -1221,7 +1223,7 @@
     text-decoration: none;
     color: #333;
     background: white;
-    border-radius: 6px;
+    border-radius: 0px;
     padding: 0;
     transition:
       transform 0.15s ease,
@@ -1293,6 +1295,7 @@
 
   .page-numbers button:hover {
     background: #01689b;
+    color: #fff;
   }
 
 
