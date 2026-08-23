@@ -882,6 +882,7 @@
 
   button:hover {
     background: #01496d;
+    font-weight: bold;
   }
 
 
@@ -1298,7 +1299,7 @@
   .page-numbers button.active {
     background: #01689b;
     color: white;
-    border-color: #333;
+    border-color: #01689b;
   }
 
 
