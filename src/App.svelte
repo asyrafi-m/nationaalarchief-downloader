@@ -877,6 +877,7 @@
     color: white;
     font-size: 15px;
     cursor: pointer;
+    letter-spacing: 0.02em;
   }
 
 
