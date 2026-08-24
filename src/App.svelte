@@ -172,7 +172,7 @@
     // IMPORTANT:
     // The download status is NOT activated before this
     // confirmation. Therefore, if the user clicks Cancel,
-    // no "Preparing download..." status will remain.
+    // no "Preparing download... Do not close this tab." status will remain.
     // -------------------------------------------------
 
     if (files.length > 100) {
@@ -197,7 +197,7 @@
     // -------------------------------------------------
 
     error = ''
-    downloadStatus = 'Preparing download...'
+    downloadStatus = 'Preparing download... Do not close this tab.'
     activeDownloadMode = mode
     downloading = true
 
@@ -535,7 +535,7 @@
               }
             >
               {activeDownloadMode === 'range' && downloading
-                ? 'Preparing download...'
+                ? 'Preparing download... Do not close this tab.'
                 : `Download pages ${downloadFrom}–${downloadTo}`}
             </button>
 
@@ -560,7 +560,7 @@
               disabled={loading || downloading}
             >
               {activeDownloadMode === 'bundle' && downloading
-                ? 'Preparing download...'
+                ? 'Preparing download... Do not close this tab.'
                 : 'Download entire bundle as ZIP'}
             </button>
 
@@ -638,7 +638,7 @@
                 disabled={loading || downloading}
               >
                 {activeDownloadMode === 'selected' && downloading
-                  ? 'Preparing download...'
+                  ? 'Preparing download... Do not close this tab.'
                   : `Download ${selectedCount} selected ${selectedCount === 1 ? 'page' : 'pages'} as ZIP`}
               </button>
 
