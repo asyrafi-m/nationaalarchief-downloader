@@ -378,7 +378,7 @@
     <h1>Nationaal Archief Bundle Downloader</h1>
 
     <p class="intro">
-      Version 1.0.5<br />
+      Version 1.0.6<br />
       Download digitised scans from the Dutch National Archives.
     </p>
 
