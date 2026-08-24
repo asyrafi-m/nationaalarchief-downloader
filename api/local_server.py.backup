@@ -5,11 +5,6 @@ import urllib.parse
 import xml.etree.ElementTree as ET
 import re
 
-from citation import (
-    build_citation_metadata,
-    generate_ris,
-    generate_bibtex
-)
 
 class handler(BaseHTTPRequestHandler):
 
@@ -82,7 +77,7 @@ class handler(BaseHTTPRequestHandler):
             # -------------------------------------------------
 
             match = re.search(
-                r"/archief/([^/]+)/invnr/(?:@)?([^/]+)",
+                r"/archief/([^/]+)/invnr/@(\d+)",
                 archive_url
             )
 
@@ -143,27 +138,19 @@ class handler(BaseHTTPRequestHandler):
             )
 
             # -------------------------------------------------
-            # 3. Parse EAD and find the inventory record
+            # 3. Parse EAD and find correct METS
             # -------------------------------------------------
 
             root = ET.fromstring(ead_data)
 
             mets_url = None
 
-            metadata = {
-                "title": None,
-                "date": None,
-                "physicalDescription": None,
-                "handle": None
-            }
-
             for unitid in root.iter("unitid"):
 
-                # We only want the public inventory number,
-                # not the internal identifier/handle.
                 if (
                     unitid.text
-                    and unitid.text.strip() == inventory_number
+                    and unitid.text.strip()
+                    == inventory_number
                     and unitid.get("type") != "handle"
                 ):
 
@@ -172,6 +159,7 @@ class handler(BaseHTTPRequestHandler):
 
                     # Find the <did> containing this unitid
                     for did in root.iter("did"):
+
                         if unitid in list(did):
                             parent_did = did
                             break
@@ -181,6 +169,7 @@ class handler(BaseHTTPRequestHandler):
 
                     # Find the enclosing <c>
                     for c in root.iter("c"):
+
                         if parent_did in list(c):
                             parent_c = c
                             break
@@ -188,51 +177,7 @@ class handler(BaseHTTPRequestHandler):
                     if parent_c is None:
                         continue
 
-                    # ---------------------------------------------
-                    # Extract metadata from this archival record
-                    # ---------------------------------------------
-
-                    unittitle = parent_did.find("unittitle")
-
-                    if unittitle is not None and unittitle.text:
-                        metadata["title"] = unittitle.text.strip()
-
-                    unitdate = parent_did.find("unitdate")
-
-                    if unitdate is not None:
-
-                        # Prefer the normalized date when available.
-                        normal_date = unitdate.get("normal")
-
-                        if normal_date:
-                            metadata["date"] = normal_date
-
-                        elif unitdate.text:
-                            metadata["date"] = unitdate.text.strip()
-
-                    physdesc = parent_did.find("physdesc")
-
-                    if physdesc is not None and physdesc.text:
-                        metadata["physicalDescription"] = (
-                            physdesc.text.strip()
-                        )
-
-                    # Find the internal handle.
-                    for record_unitid in parent_did.findall("unitid"):
-
-                        if record_unitid.get("type") == "handle":
-
-                            if record_unitid.text:
-                                metadata["handle"] = (
-                                    record_unitid.text.strip()
-                                )
-
-                            break
-
-                    # ---------------------------------------------
-                    # Find METS
-                    # ---------------------------------------------
-
+                    # Find METS DAO
                     for dao in parent_c.iter("dao"):
 
                         if dao.get("role") == "METS":
@@ -252,23 +197,6 @@ class handler(BaseHTTPRequestHandler):
                 return
 
             print("METS URL:", mets_url)
-
-            print("Metadata:", metadata)
-
-            # -------------------------------------------------
-            # 3b. Build citation metadata
-            # -------------------------------------------------
-
-            citation = build_citation_metadata(
-                archive_id,
-                inventory_number,
-                metadata
-            )
-
-            ris = generate_ris(citation)
-            bibtex = generate_bibtex(citation)
-
-            print("Citation metadata:", citation)
 
             # -------------------------------------------------
             # 4. Download METS
@@ -298,7 +226,7 @@ class handler(BaseHTTPRequestHandler):
             )
 
             # -------------------------------------------------
-            # 5. Parse METS and find JPEGs
+            # 5. Parse METS
             # -------------------------------------------------
 
             mets_root = ET.fromstring(mets_data)
@@ -308,7 +236,11 @@ class handler(BaseHTTPRequestHandler):
                 "xlink": "http://www.w3.org/1999/xlink"
             }
 
-            files = []
+            # -------------------------------------------------
+            # 6. Find DISPLAY JPEG files
+            # -------------------------------------------------
+
+            images = []
 
             for file_element in mets_root.findall(
                 ".//mets:file",
@@ -330,47 +262,72 @@ class handler(BaseHTTPRequestHandler):
                     continue
 
                 file_url = flocat.get(
-                     "{http://www.w3.org/1999/xlink}href"
+                    "{http://www.w3.org/1999/xlink}href"
                 )
 
                 if not file_url:
                     continue
-                # Exclude thumbnail files from the downloadable image list.
-                # Thumbnails are still generated separately for the UI.
-                if "/thumb/" in file_url:
-                    continue
 
-                image_id = file_url.rstrip("/").split("/")[-1]
-                
-                thumbnail_url = (
-                     "https://service.archief.nl/gaf/api/file/v1/thumb/"
-                     + image_id
-                )
+                images.append(file_url)
 
-                files.append({
-                    "page": len(files) + 1,
-                    "thumbnail": thumbnail_url,
-                    "image": file_url
-                })
+            # -------------------------------------------------
+            # 7. Separate full-size and thumbnail URLs
+            # -------------------------------------------------
+
+            full_images = [
+                url for url in images
+                if "/default/" in url
+            ]
+
+            thumbnails = [
+                url for url in images
+                if "/thumb/" in url
+            ]
 
             print(
-                "Found",
-                len(files),
-                "images"
+                "Full-size images:",
+                len(full_images)
+            )
+
+            print(
+                "Thumbnails:",
+                len(thumbnails)
             )
 
             # -------------------------------------------------
-            # 6. Return result
+            # 8. Pair full-size images with thumbnails
+            # -------------------------------------------------
+
+            files = []
+
+            for index, image_url in enumerate(full_images):
+
+                image_id = image_url.rstrip("/").split("/")[-1]
+
+                thumbnail_url = (
+                    "https://service.archief.nl/api/file/v1/thumb/"
+                    + image_id
+                )
+
+                files.append({
+                    "page": index + 1,
+                    "thumbnail": thumbnail_url,
+                    "image": image_url
+                })
+
+            print(
+                "Paired pages:",
+                len(files)
+            )
+
+            # -------------------------------------------------
+            # 9. Return result
             # -------------------------------------------------
 
             self.send_json(200, {
                 "status": "ok",
                 "archive": archive_id,
                 "inventory": inventory_number,
-                "metadata": metadata,
-                "citation": citation,
-                "ris": ris,
-                "bibtex": bibtex,
                 "metsUrl": mets_url,
                 "count": len(files),
                 "files": files
@@ -383,3 +340,22 @@ class handler(BaseHTTPRequestHandler):
             self.send_json(500, {
                 "error": str(e)
             })
+
+
+# -------------------------------------------------------------
+# Local development server
+# -------------------------------------------------------------
+
+if __name__ == "__main__":
+
+    from http.server import HTTPServer
+
+    server = HTTPServer(
+        ("127.0.0.1", 8000),
+        handler
+    )
+
+    print("Python API running at:")
+    print("http://127.0.0.1:8000")
+
+    server.serve_forever()

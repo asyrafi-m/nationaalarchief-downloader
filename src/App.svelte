@@ -5,6 +5,7 @@
   let error = ''
   let result = null
   let downloadStatus = ''
+  let citationStatus = ''
   let activeDownloadMode = ''
 
   let currentPage = 1
@@ -50,6 +51,7 @@
     error = ''
     result = null
     downloadStatus = ''
+    citationStatus = ''
     activeDownloadMode = ''
     selectedPages = new Set()
 
@@ -93,6 +95,109 @@
     } finally {
       loading = false
     }
+  }
+
+
+  // -------------------------------------------------
+  // Copy citation to clipboard
+  // -------------------------------------------------
+
+  async function copyCitation() {
+    if (!result?.citation?.fullCitation) {
+      return
+    }
+
+    try {
+      await navigator.clipboard.writeText(
+        result.citation.fullCitation
+      )
+
+      citationStatus = 'Copied!'
+
+      setTimeout(() => {
+        citationStatus = ''
+      }, 2000)
+
+    } catch (err) {
+      error = 'Could not copy citation to clipboard.'
+    }
+  }
+
+
+  // -------------------------------------------------
+  // Citation downloads
+  // -------------------------------------------------
+
+  function downloadTextFile(content, filename) {
+    const blob = new Blob(
+      [content],
+      { type: 'text/plain;charset=utf-8' }
+    )
+
+    const url = URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+
+    URL.revokeObjectURL(url)
+  }
+
+
+  function downloadRIS() {
+    if (!result?.ris) {
+      return
+    }
+
+    downloadTextFile(
+      result.ris,
+      `NationaalArchief_${result.archive}_${result.inventory}.ris`
+    )
+  }
+
+
+  function downloadBibTeX() {
+    if (!result?.bibtex) {
+      return
+    }
+
+    downloadTextFile(
+      result.bibtex,
+      `NationaalArchief_${result.archive}_${result.inventory}.bib`
+    )
+  }
+
+
+  // -------------------------------------------------
+  // Citation export
+  // -------------------------------------------------
+
+  function downloadCitation(content, filename) {
+    if (!content) {
+      error = 'Citation information is not available.'
+      return
+    }
+
+    const blob = new Blob(
+      [content],
+      { type: 'text/plain;charset=utf-8' }
+    )
+
+    const url = URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+
+    URL.revokeObjectURL(url)
   }
 
 
@@ -375,10 +480,10 @@
 <main>
   <div class="container">
 
-    <h1>Nationaal Archief Bulk Downloader</h1>
+    <h1>Nationaal Archief Bundle Downloader</h1>
 
     <p class="intro">
-      Version 1.0.5<br />
+      Version 1.0.6<br />
       Download digitised scans from the Dutch National Archives.
     </p>
 
@@ -425,41 +530,150 @@
         <!-- ----------------------------------------- -->
 
         <div class="bundle-info-citation">
+
           <div class="bundle-info">
+
             <h2>Bundle found</h2>
 
             <p>
               <strong>Archive:</strong>
-            {result.archive}
+              {result.archive}
             </p>
 
             <p>
               <strong>Inventory:</strong>
-            {result.inventory}
+              {result.inventory}
             </p>
 
             <p>
               <strong>Images:</strong>
               {result.count}
             </p>
+
           </div>
-        <!-- ----------------------------------------- -->
-        <!-- Export archive information as citation -->
-        <!-- ----------------------------------------- -->
+
+
+          <!-- ----------------------------------------- -->
+          <!-- Export archive information as citation -->
+          <!-- ----------------------------------------- -->
+
           <div class="export-citation">
-            <p class="download-instruction">Export archive information as a citation in BibTeX or RIS format. <i>Citation export is coming soon.</i></p>
+
+            <p class="download-instruction">
+              Export archive information as a citation in BibTeX or RIS format.
+            </p>
+
             <div class="citation-download">
+
               <button
-              class="card-button"
-            > RIS
-            </button>
-            <button
-              class="card-button"
-            > BibTeX
-            </button>
+                class="card-button"
+                onclick={() =>
+                  downloadCitation(
+                    result.ris,
+                    `NationaalArchief_${result.archive}_${result.inventory}.ris`
+                  )
+                }
+              >
+                RIS
+              </button>
+
+              <button
+                class="card-button"
+                onclick={() =>
+                  downloadCitation(
+                    result.bibtex,
+                    `NationaalArchief_${result.archive}_${result.inventory}.bib`
+                  )
+                }
+              >
+                BibTeX
+              </button>
+
             </div>
+
+
+            <div class="citation-copy">
+
+              <span class="citation-text">
+                {result.citation.fullCitation}
+              </span>
+
+              <button
+                class="citation-copy-button"
+                class:copied={citationStatus === 'Copied!'}
+                type="button"
+                aria-label={
+                  citationStatus === 'Copied!'
+                    ? 'Citation copied'
+                    : 'Copy citation to clipboard'
+                }
+                title={
+                  citationStatus === 'Copied!'
+                    ? 'Citation copied'
+                    : 'Copy citation to clipboard'
+                }
+                onclick={copyCitation}
+              >
+
+                {#if citationStatus === 'Copied!'}
+
+                  <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M5 12.5l4 4L19 7"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+
+                {:else}
+
+                  <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <rect
+                      x="9"
+                      y="9"
+                      width="11"
+                      height="11"
+                      rx="2"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    />
+
+                    <path
+                      d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    />
+                  </svg>
+
+                {/if}
+
+              </button>
+
+              {#if citationStatus}
+
+                <span class="citation-status">
+                  {citationStatus}
+                </span>
+
+              {/if}
+
+            </div>
+
           </div>
+
         </div>
+
 
         <!-- ----------------------------------------- -->
         <!-- Download instruction -->
@@ -884,8 +1098,8 @@
   button:hover {
     background: #01496d;
     text-shadow:
-    0.5px 0 0 currentColor,
-    -0.5px 0 0 currentColor;
+      0.5px 0 0 currentColor,
+      -0.5px 0 0 currentColor;
   }
 
 
@@ -918,9 +1132,12 @@
     border-top: 1px solid #ddd;
   }
 
+
   .bundle-info {
     padding-right: 16px;
     border-right: solid 1px #ddd;
+    width: 30%;
+    margin: auto;
   }
 
 
@@ -933,6 +1150,7 @@
     margin: 8px 0;
   }
 
+
   .bundle-info-citation {
     gap: 16px;
     display: flex;
@@ -940,6 +1158,7 @@
     padding-bottom: 25px;
     border-bottom: solid 1px #ddd;
   }
+
 
   .citation-download {
     align-items: stretch;
@@ -959,6 +1178,86 @@
   }
 
 
+  /* Citation copy */
+
+  .export-citation .download-instruction {
+    margin: 0px 0px 12px 0px;
+  }
+
+
+  .export-citation {
+    max-width: 70%;
+  }
+
+
+  .citation-copy {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    background-color: #efefea;
+    padding: 12px;
+  }
+
+
+  .citation-text {
+    flex: 1;
+    min-width: 0;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+
+  .citation-copy-button {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 7px;
+    border: 1px solid currentColor;
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    margin: 0;
+    color: #01689b;
+  }
+
+
+  .citation-copy-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+
+  .citation-copy-button:hover {
+    background: currentColor;
+    text-shadow:
+      0.5px 0 0 #fff,
+      -0.5px 0 0 #fff;
+  }
+
+  .citation-copy-button:hover svg {
+    color: #fff;
+  }
+
+
+  .citation-copy-button.copied {
+    color: #286328;
+    border-color: #286328;
+  }
+
+
+  .citation-status {
+    flex: 0 0 auto;
+    color: #286328;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+
   /* --------------------------------------------- */
   /* Download options */
   /* --------------------------------------------- */
@@ -975,7 +1274,7 @@
     display: flex;
     flex-direction: column;
     padding: 20px;
-    background: #f8f8f8;
+    background: #efefea;
     border: 1px solid #ddd;
     border-radius: 0px;
     box-sizing: border-box;
@@ -1103,7 +1402,7 @@
     gap: 10px;
     margin-top: 18px;
     padding: 12px 15px;
-    background: #f5f5f5;
+    background: #efefea;
     border: 1px solid #ddd;
     border-radius: 0px;
     color: #555;
@@ -1174,7 +1473,7 @@
   .thumbnail-wrapper {
     position: relative;
     min-width: 0;
-    background: #f5f5f5;
+    background: #efefea;
     border: 2px solid transparent;
     border-radius: 0px;
     padding: 6px;
