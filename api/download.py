@@ -217,9 +217,26 @@ class handler(BaseHTTPRequestHandler):
 
                     image_url = file.get("image")
 
-                    if not image_url:
+                    # -------------------------------------
+                    # Use the original page number supplied
+                    # by the frontend.
+                    #
+                    # This is important for partial
+                    # downloads. For example, if the user
+                    # selects pages 3–5, the files contain
+                    # page numbers 3, 4, and 5. We must not
+                    # renumber them as 1, 2, and 3.
+                    #
+                    # Fall back to index + 1 if the page
+                    # property is missing.
+                    # -------------------------------------
 
-                        page_number = index + 1
+                    page_number = file.get(
+                        "page",
+                        index + 1
+                    )
+
+                    if not image_url:
 
                         print(
                             f"Skipping page "
@@ -231,8 +248,6 @@ class handler(BaseHTTPRequestHandler):
                         )
 
                         continue
-
-                    page_number = index + 1
 
                     image_data = self.download_image(
                         image_url,
