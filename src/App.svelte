@@ -375,7 +375,7 @@
 <main>
   <div class="container">
 
-    <h1>Nationaal Archief Bulk Downloader</h1>
+    <h1>Nationaal Archief Bundle Downloader</h1>
 
     <p class="intro">
       Version 1.0.5<br />
