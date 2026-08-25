@@ -172,7 +172,7 @@
     // IMPORTANT:
     // The download status is NOT activated before this
     // confirmation. Therefore, if the user clicks Cancel,
-    // no "Preparing download... Do not close this tab." status will remain.
+    // no "Preparing download..." status will remain.
     // -------------------------------------------------
 
     if (files.length > 100) {
@@ -447,7 +447,7 @@
         <!-- Export archive information as citation -->
         <!-- ----------------------------------------- -->
           <div class="export-citation">
-            <p class="download-instruction">Export archive information as a citation in BibTeX or RIS format. <i>Citation export is coming soon.</i></p>
+            <p class="download-instruction">Export archive information as a citation in BibTeX or RIS format. <i>Citation export is under development.</i></p>
             <div class="citation-download">
               <button
               class="card-button"
@@ -535,7 +535,7 @@
               }
             >
               {activeDownloadMode === 'range' && downloading
-                ? 'Preparing download... Do not close this tab.'
+                ? 'Preparing download...'
                 : `Download pages ${downloadFrom}–${downloadTo}`}
             </button>
 
@@ -560,7 +560,7 @@
               disabled={loading || downloading}
             >
               {activeDownloadMode === 'bundle' && downloading
-                ? 'Preparing download... Do not close this tab.'
+                ? 'Preparing download...'
                 : 'Download entire bundle as ZIP'}
             </button>
 
@@ -638,7 +638,7 @@
                 disabled={loading || downloading}
               >
                 {activeDownloadMode === 'selected' && downloading
-                  ? 'Preparing download... Do not close this tab.'
+                  ? 'Preparing download...'
                   : `Download ${selectedCount} selected ${selectedCount === 1 ? 'page' : 'pages'} as ZIP`}
               </button>
 
